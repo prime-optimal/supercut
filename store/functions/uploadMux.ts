@@ -17,6 +17,7 @@ const createMuxUpload = async ({ id }: { id: string }) => {
         return { url, uploadId };
       });
   } catch (e) {
+    console.log('error', e);
     return Promise.reject(e);
   }
 };
@@ -31,11 +32,13 @@ const uploadMux = async ({
   id: string;
 }) => {
   try {
-    const fileName = file?.name ? file?.name : id;
-
     const edit: EditProps = {
       id: id,
       uploadId: null,
+      playbackId: null,
+      assetId: null,
+      status: null,
+      staticStatus: null,
     };
 
     set((state: SuperStoreProps) => {
@@ -46,14 +49,19 @@ const uploadMux = async ({
       };
     });
 
+    console.log('start createMuxUpload');
+
     const { url, uploadId } = await createMuxUpload({
       id,
     });
 
+    console.log('done createMuxUpload', url, uploadId);
+
     set((state: SuperStoreProps) => {
+      const newEdit: EditProps = { ...edit, uploadId: uploadId };
       return {
         ...state,
-        [`Edit:${id}`]: { ...edit, uploadId: uploadId },
+        [`Edit:${id}`]: newEdit,
       };
     });
 

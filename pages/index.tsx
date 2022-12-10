@@ -3,6 +3,9 @@ import { useCallback, useState } from 'react';
 import { useMux } from '../hooks/useMux';
 import { v4 as uuid } from 'uuid';
 import { useFileSelect } from '../hooks/useSelectFile';
+import { useLiveEdit } from '../hooks/useLiveEdit';
+import { useSuperStore } from '../store/useSuperStore';
+import { EditProps } from '../store/superTypes.types';
 
 function Home() {
   const [id, setId] = useState(uuid());
@@ -14,6 +17,10 @@ function Home() {
 
   const { selectFile } = useFileSelect({ onSelect: onSelect });
 
+  useLiveEdit();
+
+  const edit: EditProps = useSuperStore((state) => state[`Edit:${id}`]);
+
   return (
     <div>
       <Head>
@@ -22,8 +29,13 @@ function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <button onClick={selectFile}>Upload Video</button>
+      <button disabled={progressPercent !== null} onClick={selectFile}>
+        Upload Video
+      </button>
+      <br />
       {progressPercent}%
+      <br />
+      edit: {JSON.stringify(edit)}
     </div>
   );
 }

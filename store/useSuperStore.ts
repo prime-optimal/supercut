@@ -1,5 +1,7 @@
 import create from 'zustand';
+import { handleEditUpdate } from './functions/handleEditUpdate';
 import { uploadMux } from './functions/uploadMux';
+import { EditProps } from './superTypes.types';
 
 export type SuperStoreProps = {
   [x: string]: any;
@@ -13,6 +15,15 @@ export type SuperStoreProps = {
     file: File;
     id: string;
   }) => Promise<{ data: { id: string; url: string } | null; error: any }>;
+  handleEditUpdate: ({
+    newValue,
+    oldValue,
+    eventType,
+  }: {
+    newValue: EditProps | null;
+    oldValue: EditProps | null;
+    eventType: 'INSERT' | 'UPDATE';
+  }) => void;
 };
 
 const initState = {
@@ -26,6 +37,15 @@ const useSuperStore = create<SuperStoreProps>((set, get) => ({
     setLocalValue({ value, set }),
   uploadMux: ({ file, id }: { file: File; id: string }) =>
     uploadMux({ file, id, set }),
+  handleEditUpdate: ({
+    newValue,
+    oldValue,
+    eventType,
+  }: {
+    newValue: EditProps | null;
+    oldValue: EditProps | null;
+    eventType: 'INSERT' | 'UPDATE';
+  }) => handleEditUpdate({ newValue, oldValue, eventType, set }),
 }));
 
 export { useSuperStore };
