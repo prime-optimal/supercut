@@ -1,8 +1,9 @@
-import create from 'zustand';
-import { handleEditUpdate } from './functions/handleEditUpdate';
-import { setEdit } from './functions/setEdit';
-import { uploadMux } from './functions/uploadMux';
-import { EditProps } from './superTypes.types';
+import create from "zustand";
+import { handleEditUpdate } from "./functions/handleEditUpdate";
+import { setEdit } from "./functions/setEdit";
+import { setTranscription } from "./functions/setTranscription";
+import { uploadMux } from "./functions/uploadMux";
+import { EditProps, TranscriptionProps } from "./superTypes.types";
 
 export type SuperStoreProps = {
   [x: string]: any;
@@ -24,7 +25,12 @@ export type SuperStoreProps = {
   }: {
     newValue: EditProps | null;
     oldValue: EditProps | null;
-    eventType: 'INSERT' | 'UPDATE';
+    eventType: "INSERT" | "UPDATE";
+  }) => void;
+  setTranscription: ({
+    transcription,
+  }: {
+    transcription: TranscriptionProps;
   }) => void;
 };
 
@@ -34,6 +40,11 @@ const initState = {
 
 const useSuperStore = create<SuperStoreProps>((set, get) => ({
   ...initState,
+  setTranscription: ({
+    transcription,
+  }: {
+    transcription: TranscriptionProps;
+  }) => setTranscription({ transcription, set }),
   setEdit: ({ edit }: { edit: EditProps | null }) => setEdit({ edit, set }),
   setValue: ({ value }: { value: string }) => set({ value }),
   setLocalValue: ({ value }: { value: string }) =>
@@ -47,7 +58,7 @@ const useSuperStore = create<SuperStoreProps>((set, get) => ({
   }: {
     newValue: EditProps | null;
     oldValue: EditProps | null;
-    eventType: 'INSERT' | 'UPDATE';
+    eventType: "INSERT" | "UPDATE";
   }) => handleEditUpdate({ newValue, oldValue, eventType, set }),
 }));
 
@@ -55,5 +66,5 @@ export { useSuperStore };
 
 const setLocalValue = ({ value, set }: { value: string; set: any }) => {
   set({ value });
-  localStorage.setItem('value', value);
+  localStorage.setItem("value", value);
 };

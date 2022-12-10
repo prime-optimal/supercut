@@ -1,4 +1,4 @@
-import { SuperStoreProps } from './../store/useSuperStore';
+import { SuperStoreProps } from '../store/useSuperStore';
 import { useSuperStore } from '../store/useSuperStore';
 import { useCallback, useMemo } from 'react';
 

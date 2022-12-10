@@ -1,4 +1,4 @@
-import { SuperStoreProps } from './../store/useSuperStore';
+import { SuperStoreProps } from '../store/useSuperStore';
 import { useEffect } from 'react';
 import { useSuperStore } from '../store/useSuperStore';
 import { client } from '../supabase';

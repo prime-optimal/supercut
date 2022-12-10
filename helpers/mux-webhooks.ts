@@ -1,6 +1,12 @@
-import { PostgrestResponse } from '@supabase/supabase-js';
-import { MuxAssetUpdate, MuxUploadUpdate } from '../store/muxTypes.types';
-import { client } from '../supabase';
+import { EditProps } from "./../store/superTypes.types";
+import {
+  PostgrestResponse,
+  PostgrestSingleResponse,
+} from "@supabase/supabase-js";
+import axios from "axios";
+import { MuxAssetUpdate, MuxUploadUpdate } from "../store/muxTypes.types";
+import { client } from "../supabase";
+import { v4 as uuid } from "uuid";
 
 export const updateAssetStatus = async ({
   assetId,
@@ -8,25 +14,25 @@ export const updateAssetStatus = async ({
   playbackId,
 }: {
   assetId: string;
-  status: 'ready' | 'waiting' | 'asset_created' | 'preparing' | 'errored';
+  status: "ready" | "waiting" | "asset_created" | "preparing" | "errored";
   playbackId: string | null;
 }) => {
   if (playbackId) {
     const { data, error }: PostgrestResponse<undefined> = await client
-      .from('Edit')
+      .from("Edit")
       .update({ status: status, playbackId: playbackId })
       .match({ assetId: assetId });
 
-    console.log('asset status update:', assetId, status, playbackId);
+    console.log("asset status update:", assetId, status, playbackId);
 
     return { data, error };
   } else {
     const { data, error }: PostgrestResponse<undefined> = await client
-      .from('Edit')
+      .from("Edit")
       .update({ status: status })
       .match({ assetId: assetId });
 
-    console.log('asset status update:', assetId, status, 'no playbackId');
+    console.log("asset status update:", assetId, status, "no playbackId");
 
     return { data, error };
   }
@@ -38,17 +44,33 @@ export const updateAssetStaticStatus = async ({
 }: {
   assetId: string;
   staticStatus:
-    | 'ready'
-    | 'waiting'
-    | 'asset_created'
-    | 'preparing'
-    | 'errored'
-    | 'deleted';
+    | "ready"
+    | "waiting"
+    | "asset_created"
+    | "preparing"
+    | "errored"
+    | "deleted";
 }) => {
-  const { data, error }: PostgrestResponse<undefined> = await client
-    .from('Edit')
+  const { data, error }: PostgrestSingleResponse<EditProps> = await client
+    .from("Edit")
     .update({ staticStatus: staticStatus })
-    .match({ assetId });
+    .match({ assetId })
+    .select("*")
+    .single();
+
+  if (staticStatus === "ready") {
+    const playbackId = data?.playbackId;
+    const audioUrl = `https://stream.mux.com/${playbackId}/high.mp4`;
+    const url = process.env.NEXT_PUBLIC_ENDPOINT + "/transcribe";
+
+    const { data: transcribeData } = await axios({
+      method: "post",
+      url: url,
+      data: { audioUrl, editId: data?.id, transcriptionId: uuid() },
+    });
+
+    console.log("start transcribeData:", transcribeData);
+  }
 
   return { data, error };
 };
@@ -63,7 +85,7 @@ const updateUploadStatus = async ({
   assetId: string | null;
 }) => {
   const { data, error }: PostgrestResponse<undefined> = await client
-    .from('Edit')
+    .from("Edit")
     .update({ status: status, assetId: assetId })
     .match({ uploadId: uploadId });
 
@@ -80,7 +102,7 @@ export const handleUploadWebhook = async (response: MuxUploadUpdate) => {
 
 export const handleAssetWebhook = async (response: MuxAssetUpdate) => {
   const status = response?.data?.status;
-  const playbackIds: { policy: 'public'; id: string }[] =
+  const playbackIds: { policy: "public"; id: string }[] =
     response?.data?.playback_ids;
 
   const playbackId =
@@ -89,7 +111,7 @@ export const handleAssetWebhook = async (response: MuxAssetUpdate) => {
       : null;
 
   const type = response?.type;
-  const isStatic = type.includes('static_renditions');
+  const isStatic = type.includes("static_renditions");
   const assetId = response?.object.id;
 
   if (isStatic) {

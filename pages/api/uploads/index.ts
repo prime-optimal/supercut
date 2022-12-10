@@ -20,6 +20,7 @@ const insertEdit = async ({
     assetId: null,
     status: null,
     staticStatus: null,
+    assemblyId: null,
     summaryStatus: null
   };
 

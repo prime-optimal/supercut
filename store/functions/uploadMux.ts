@@ -39,7 +39,8 @@ const uploadMux = async ({
       assetId: null,
       status: null,
       staticStatus: null,
-      summaryStatus: null
+      summaryStatus: null,
+      assemblyId: null
     };
 
     set((state: SuperStoreProps) => {

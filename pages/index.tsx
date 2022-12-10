@@ -1,28 +1,26 @@
-import Head from 'next/head';
-import { useCallback, useState } from 'react';
-import { useMux } from '../hooks/useMux';
-import { v4 as uuid } from 'uuid';
-import { useFileSelect } from '../hooks/useSelectFile';
-import { useLiveEdit } from '../hooks/useLiveEdit';
-import { useSuperStore } from '../store/useSuperStore';
-import { EditProps } from '../store/superTypes.types';
-import { useRouter } from 'next/router';
+import Head from "next/head";
+import { useCallback, useState } from "react";
+import { useMux } from "../hooks/useMux";
+import { v4 as uuid } from "uuid";
+import { useFileSelect } from "../hooks/useSelectFile";
+import { useLiveEdit } from "../hooks/useLiveEdit";
+import { useSuperStore } from "../store/useSuperStore";
+import { EditProps } from "../store/superTypes.types";
+import { useRouter } from "next/router";
 
 function Home() {
   const [id, setId] = useState(uuid());
   const { handleUpload, progressPercent } = useMux({ id: id });
-
   const router = useRouter();
 
   const onSelect = useCallback((acceptedFiles: File[]) => {
     handleUpload(acceptedFiles);
-    router.push(`/${id}`);
+    router.push(`/${id}?password=superpass`);
   }, []);
 
   const { selectFile } = useFileSelect({ onSelect: onSelect });
 
   useLiveEdit();
-
   const edit: EditProps = useSuperStore((state) => state[`Edit:${id}`]);
 
   return (
@@ -33,7 +31,11 @@ function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <button className='btn-secondary' disabled={progressPercent !== null} onClick={selectFile}>
+      <button
+        className="btn-secondary"
+        disabled={progressPercent !== null}
+        onClick={selectFile}
+      >
         Upload Video
       </button>
       <br />
@@ -42,6 +44,25 @@ function Home() {
       edit: {JSON.stringify(edit)}
     </div>
   );
+}
+
+export async function getServerSideProps(ctx) {
+  const password = ctx.query?.password;
+
+  console.log("password", password);
+
+  if (password === "superpass") {
+    return {
+      props: {},
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/password",
+        permanent: false,
+      },
+    };
+  }
 }
 
 export default Home;
