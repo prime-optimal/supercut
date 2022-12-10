@@ -1,8 +1,28 @@
 import Head from 'next/head';
+import { useEffect } from 'react';
 import { SuperStoreProps, useSuperStore } from '../store/useStore';
 
-export default function Home() {
+const useLocalStore = () => {
   const setValue = useSuperStore((state: SuperStoreProps) => state.setValue);
+
+  const getValue = () => {
+    const value: string | null = localStorage.getItem('value');
+
+    if (value) {
+      setValue({ value });
+    }
+  };
+
+  useEffect(() => {
+    getValue();
+  }, []);
+};
+
+export default function Home() {
+  useLocalStore();
+  const setValue = useSuperStore(
+    (state: SuperStoreProps) => state.setLocalValue
+  );
   const value = useSuperStore((state: SuperStoreProps) => state.value ?? '');
 
   return (
