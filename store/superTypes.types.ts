@@ -5,4 +5,5 @@ export type EditProps = {
   assetId: string | null;
   status: string | null;
   staticStatus: string | null;
+  summaryStatus: string | null
 };

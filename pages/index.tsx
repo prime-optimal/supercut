@@ -6,13 +6,17 @@ import { useFileSelect } from '../hooks/useSelectFile';
 import { useLiveEdit } from '../hooks/useLiveEdit';
 import { useSuperStore } from '../store/useSuperStore';
 import { EditProps } from '../store/superTypes.types';
+import { useRouter } from 'next/router';
 
 function Home() {
   const [id, setId] = useState(uuid());
   const { handleUpload, progressPercent } = useMux({ id: id });
 
+  const router = useRouter();
+
   const onSelect = useCallback((acceptedFiles: File[]) => {
     handleUpload(acceptedFiles);
+    router.push(`/${id}`);
   }, []);
 
   const { selectFile } = useFileSelect({ onSelect: onSelect });
@@ -29,7 +33,7 @@ function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <button disabled={progressPercent !== null} onClick={selectFile}>
+      <button className='btn-secondary' disabled={progressPercent !== null} onClick={selectFile}>
         Upload Video
       </button>
       <br />

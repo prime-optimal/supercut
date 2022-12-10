@@ -13,8 +13,6 @@ const insertEdit = async ({
   id: string;
   uploadId: string;
 }) => {
-  console.log('insertEdit uploadId', uploadId);
-
   const edit: EditProps = {
     id: id,
     uploadId: uploadId,
@@ -22,13 +20,12 @@ const insertEdit = async ({
     assetId: null,
     status: null,
     staticStatus: null,
+    summaryStatus: null
   };
 
   const { data, error }: PostgrestResponse<undefined> = await client
     .from('Edit')
     .insert({ ...edit });
-
-  console.log('insertEdit', data, error);
 
   return { data, error };
 };
@@ -53,8 +50,6 @@ export default async (
         const body = JSON.parse(req?.body);
         const uploadId: string = upload.id;
         const id: string = body?.id as string;
-
-        console.log('uploadId', uploadId);
 
         await insertEdit({ uploadId, id });
 

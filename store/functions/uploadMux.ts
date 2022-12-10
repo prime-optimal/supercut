@@ -39,6 +39,7 @@ const uploadMux = async ({
       assetId: null,
       status: null,
       staticStatus: null,
+      summaryStatus: null
     };
 
     set((state: SuperStoreProps) => {
@@ -49,13 +50,9 @@ const uploadMux = async ({
       };
     });
 
-    console.log('start createMuxUpload');
-
     const { url, uploadId } = await createMuxUpload({
       id,
     });
-
-    console.log('done createMuxUpload', url, uploadId);
 
     set((state: SuperStoreProps) => {
       const newEdit: EditProps = { ...edit, uploadId: uploadId };

@@ -1,11 +1,13 @@
 import create from 'zustand';
 import { handleEditUpdate } from './functions/handleEditUpdate';
+import { setEdit } from './functions/setEdit';
 import { uploadMux } from './functions/uploadMux';
 import { EditProps } from './superTypes.types';
 
 export type SuperStoreProps = {
   [x: string]: any;
   value: string | null;
+  setEdit: ({ edit }: { edit: EditProps | null }) => void;
   setValue: ({ value }: { value: string }) => void;
   setLocalValue: ({ value }: { value: string }) => void;
   uploadMux: ({
@@ -32,6 +34,7 @@ const initState = {
 
 const useSuperStore = create<SuperStoreProps>((set, get) => ({
   ...initState,
+  setEdit: ({ edit }: { edit: EditProps | null }) => setEdit({ edit, set }),
   setValue: ({ value }: { value: string }) => set({ value }),
   setLocalValue: ({ value }: { value: string }) =>
     setLocalValue({ value, set }),
