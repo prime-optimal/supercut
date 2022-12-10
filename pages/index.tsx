@@ -1,29 +1,18 @@
 import Head from 'next/head';
-import { useEffect } from 'react';
-import { SuperStoreProps, useSuperStore } from '../store/useStore';
+import { useCallback, useState } from 'react';
+import { useMux } from '../hooks/useMux';
+import { v4 as uuid } from 'uuid';
+import { useFileSelect } from '../hooks/useSelectFile';
 
-const useLocalStore = () => {
-  const setValue = useSuperStore((state: SuperStoreProps) => state.setValue);
+function Home() {
+  const [id, setId] = useState(uuid());
+  const { handleUpload, progressPercent } = useMux({ id: id });
 
-  const getValue = () => {
-    const value: string | null = localStorage.getItem('value');
-
-    if (value) {
-      setValue({ value });
-    }
-  };
-
-  useEffect(() => {
-    getValue();
+  const onSelect = useCallback((acceptedFiles: File[]) => {
+    handleUpload(acceptedFiles);
   }, []);
-};
 
-export default function Home() {
-  useLocalStore();
-  const setValue = useSuperStore(
-    (state: SuperStoreProps) => state.setLocalValue
-  );
-  const value = useSuperStore((state: SuperStoreProps) => state.value ?? '');
+  const { selectFile } = useFileSelect({ onSelect: onSelect });
 
   return (
     <div>
@@ -33,13 +22,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <input
-        placeholder="test value"
-        value={value}
-        onChange={(e) => setValue({ value: e?.target?.value })}
-      />
-      value:
-      {value}
+      <button onClick={selectFile}>Upload Video</button>
+      {progressPercent}%
     </div>
   );
 }
+
+export default Home;

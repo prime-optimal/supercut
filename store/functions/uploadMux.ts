@@ -1,6 +1,5 @@
 import { EditProps } from '../superTypes.types';
-import { SuperStoreProps } from './../useStore';
-import { v4 as uuid } from 'uuid';
+import { SuperStoreProps } from '../useSuperStore';
 import * as UpChunk from '@mux/upchunk';
 
 const createMuxUpload = async ({ id }: { id: string }) => {
@@ -32,10 +31,10 @@ const uploadMux = async ({
   id: string;
 }) => {
   try {
-    const fileName = file.name;
+    const fileName = file?.name ? file?.name : id;
 
     const edit: EditProps = {
-      id: uuid(),
+      id: id,
       uploadId: null,
     };
 
@@ -77,9 +76,9 @@ const uploadMux = async ({
 
     upload.on('success', async (e) => {});
 
-    return { id: uploadId, url };
+    return { data: { id: uploadId, url }, error: null };
   } catch (error) {
-    // setError(`😱 Creating authenticated upload url failed: ${error}`)
+    return { data: null, error: error };
   }
 };
 
