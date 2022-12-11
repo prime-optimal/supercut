@@ -25,8 +25,6 @@ const onUpdate = async (req: NextApiRequest, res: NextApiResponse) => {
       old_record: TranscriptionProps;
     } = req?.body;
 
-    console.log("onUpdate");
-
     const editId = body?.record?.editId;
 
     const { data, error } = await client
@@ -36,32 +34,8 @@ const onUpdate = async (req: NextApiRequest, res: NextApiResponse) => {
       .single();
 
     const hasParentId = data?.parentId !== null ? true : false;
-
-    console.log("hasParentId", hasParentId);
-
     const oldChapters = body?.old_record?.chapters;
     const newChapters = body?.record?.chapters;
-
-    const title = data?.title ?? null;
-    const tweet = data?.tweet ?? null;
-    const text = body?.record?.text ?? null;
-
-    if (
-      (title === null || tweet === null) &&
-      text !== null &&
-      hasParentId === true
-    ) {
-      try {
-        const title = await createTitle({ text: body?.record?.text });
-        const tweet = await createTweet({ text: body?.record?.text });
-        const { data, error } = await client
-          .from("Edit")
-          .update({ title, tweet })
-          .eq("id", editId)
-          .single();
-        console.log("title and tweet", data, error);
-      } catch (error) {}
-    }
 
     if (oldChapters === null && newChapters !== null && hasParentId === false) {
       console.log("new chapters baby!!", body?.record?.chapters);
@@ -102,8 +76,8 @@ const createSubEdits = async ({
         start: chapter?.start,
         end: chapter?.end,
         headline: null,
-        summary: null,
-        gist: null,
+        summary: chapter?.summary,
+        gist: chapter?.gist,
       };
 
       return newEdit;
@@ -115,17 +89,4 @@ const createSubEdits = async ({
   console.log("newEdits", newEdits);
 
   return newEdits;
-};
-
-const createTweet = async ({ text }: { text: string }) => {
-  const prompt = `Create a casual sensationalized and controversial 120 character summary without any hashtags of this text: ${text}`;
-  const data = await completion({ prompt: prompt });
-  return data?.choices[0].text;
-};
-
-const createTitle = async ({ text }: { text: string }) => {
-  const prompt = `Create a clickbait, sensationalized and controversial title that's less than 30 characters from this text: ${text}`;
-
-  const data = await completion({ prompt: prompt });
-  return data?.choices[0].text;
 };
