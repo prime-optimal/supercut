@@ -47,7 +47,8 @@ const transcribe = async (req: NextApiRequest, res: NextApiResponse) => {
     if (editId) {
       const { data, error } = await client
         .from("Edit")
-        .update({ transcriptionId: transcriptionId });
+        .update({ transcriptionId: transcriptionId })
+        .match({ id: editId });
       console.log("edit update: data", data, "error", error);
     }
 

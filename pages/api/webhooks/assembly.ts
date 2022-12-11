@@ -1,3 +1,4 @@
+import { EditProps } from "./../../../store/superTypes.types";
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { AssemblyTranscibeResponse } from "../../../store/assemblyTypes.types";
@@ -7,9 +8,7 @@ import { client } from "../../../supabase";
 const assembly = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const transcriptionId = req?.query?.id;
-
     console.log("transcriptionId", transcriptionId);
-
     const { status, transcript_id }: { status: string; transcript_id: string } =
       req?.body;
 
@@ -25,8 +24,6 @@ const assembly = async (req: NextApiRequest, res: NextApiResponse) => {
     console.log("update Transcription", transcriptionId, status);
     console.log("update Transcription", data, error);
     const ASSEMBLY_AI_AUTH = process.env.ASSEMBLY_AI_AUTH;
-
-    console.log("ASSEMBLY_AI_AUTH", ASSEMBLY_AI_AUTH);
 
     const { data: transcript }: { data: AssemblyTranscibeResponse } =
       await axios({
@@ -44,7 +41,7 @@ const assembly = async (req: NextApiRequest, res: NextApiResponse) => {
       duration: transcript?.audio_duration,
     };
 
-    console.log("newTranscription", newTranscription);
+    console.log("newTranscription");
 
     const { data: updateData, error: updateError } = await client
       .from("Transcription")

@@ -7,6 +7,12 @@ export type EditProps = {
   staticStatus: string | null;
   summaryStatus: string | null;
   assemblyId: string | null;
+  parentId?: string | null;
+  start?: null | number;
+  end?: null | number;
+  headline?: null | string;
+  summary?: null | string;
+  gist?: null | string;
 };
 
 export type TranscriptionProps = {
@@ -15,7 +21,7 @@ export type TranscriptionProps = {
   assemblyId: string;
   text: string | null;
   words: WordProps[] | null;
-  chapters: ChapterProps[] | null;
+  chapters: AssemblyChapterProps[] | null;
   duration: number | null;
   status: "queued" | "processing" | "completed" | "error";
 };
@@ -28,10 +34,22 @@ export type WordProps = {
   text: string;
 };
 
-export type ChapterProps = {
+export type AssemblyChapterProps = {
   gist: string;
   summary: string;
   headline: string;
   start: number;
   end: number;
+};
+
+export type ChapterProps = {
+  id: string;
+  editId: string;
+  gist: string;
+  summary: string;
+  headline: string;
+  start: number;
+  end: number;
+  playbackId: string | null;
+  assetId: string | null;
 };

@@ -110,6 +110,8 @@ export const handleAssetWebhook = async (response: MuxAssetUpdate) => {
       ? playbackIds[0]?.id
       : null;
 
+  console.log("playbackId", playbackId);
+
   const type = response?.type;
   const isStatic = type.includes("static_renditions");
   const assetId = response?.object.id;

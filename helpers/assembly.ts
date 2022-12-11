@@ -9,7 +9,6 @@ const transcribe = async (req: NextApiRequest, res: NextApiResponse) => {
     const editId = req.body.editId;
     const audioUrl = req.body.audio_url;
     const transcriptionId = req?.body?.transcriptionId;
-
     const url = `https://api.assemblyai.com/v2/transcript`;
     const webhook_url = `${process.env.NEXT_PUBLIC_ENDPOINT}/transcription/webhook?id=${transcriptionId}`;
     const authorization = process.env.ASSEMBLY_AI_AUTH;
