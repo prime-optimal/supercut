@@ -1,6 +1,5 @@
 import {
   AssemblyChapterProps,
-  ChapterProps,
   EditProps,
   TranscriptionProps,
 } from "./../../../../store/superTypes.types";
@@ -8,6 +7,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuid } from "uuid";
 import { client } from "../../../../supabase";
 import completion from "../../../../helpers/completion";
+
+export const config = {
+  api: {
+    bodyParser: {
+      limit: "10mb",
+    },
+  },
+};
 
 const onUpdate = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -17,6 +24,8 @@ const onUpdate = async (req: NextApiRequest, res: NextApiResponse) => {
       record: TranscriptionProps;
       old_record: TranscriptionProps;
     } = req?.body;
+
+    console.log("onUpdate");
 
     const editId = body?.record?.editId;
 
@@ -37,17 +46,21 @@ const onUpdate = async (req: NextApiRequest, res: NextApiResponse) => {
     const tweet = data?.tweet ?? null;
     const text = body?.record?.text ?? null;
 
-    if ((title === null || tweet === null) && text !== null) {
-      const title = await createTitle({ text: body?.record?.text });
-      const tweet = await createTweet({ text: body?.record?.text });
-
-      const { data, error } = await client
-        .from("Edit")
-        .update({ title, tweet })
-        .eq("id", editId)
-        .single();
-
-      console.log("title and tweet", data, error);
+    if (
+      (title === null || tweet === null) &&
+      text !== null &&
+      hasParentId === true
+    ) {
+      try {
+        const title = await createTitle({ text: body?.record?.text });
+        const tweet = await createTweet({ text: body?.record?.text });
+        const { data, error } = await client
+          .from("Edit")
+          .update({ title, tweet })
+          .eq("id", editId)
+          .single();
+        console.log("title and tweet", data, error);
+      } catch (error) {}
     }
 
     if (oldChapters === null && newChapters !== null && hasParentId === false) {

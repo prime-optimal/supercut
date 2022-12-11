@@ -17,8 +17,6 @@ const useEdit = (id: string) => {
       .eq("id", id)
       .single();
 
-    console.log("data", data);
-
     if (data) {
       setEdit({ edit: data });
     } else {
@@ -122,7 +120,7 @@ const Playback: React.FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page>
-      <div className="flex h-screen max-h-screen w-screen flex-col">
+      <div className="flex h-screen max-h-screen w-screen flex-col items-center">
         <h1 className="font-bold">id: {id}</h1>
         <br />
         progress: {progress}
@@ -135,7 +133,7 @@ const Playback: React.FC<{ id: string }> = ({ id }) => {
         <br />
         {`https://stream.mux.com/${edit?.playbackId}/high.mp4`}
         <br />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid w-6/12 grid-cols-3 gap-4">
           {subEdits &&
             subEdits.map((edit, index) => {
               return <TwitterCard key={index} edit={edit} id={edit?.id} />;
@@ -187,6 +185,30 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
     }
   }, [id]);
 
+  const [loading, setLoading] = useState(false);
+
+  const refresh = async () => {
+    setLoading(true);
+
+    const newTranscription: Partial<TranscriptionProps> = {};
+
+    const { data: editDate, error: EditError } = await client
+      .from("Edit")
+      .update({ tweet: null, title: null })
+      .match({ id: edit?.id });
+
+    console.log("editDate", editDate, EditError);
+
+    const { data, error } = await client
+      .from("Transcription")
+      .update({ updatedAt: new Date() })
+      .match({ editId: edit?.id });
+
+    console.log("data", data, error);
+
+    setLoading(false);
+  };
+
   return (
     <div className="flex flex-col overflow-hidden rounded-md border border-solid border-gray-200">
       <div className="relative flex h-48 flex-col items-center overflow-hidden bg-black">
@@ -212,6 +234,11 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
       <div className="flex flex-col p-3">
         <span className="mb-2 text-base">{edit?.title}</span>
         <span className="text-sm">{edit?.tweet}</span>
+        <div className="mt-2">
+          <button onClick={refresh} className="btn-secondary">
+            {loading === true ? "loading..." : "refresh"}
+          </button>
+        </div>
       </div>
     </div>
   );
