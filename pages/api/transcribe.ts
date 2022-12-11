@@ -13,8 +13,6 @@ const transcribe = async (req: NextApiRequest, res: NextApiResponse) => {
     const webhook_url = `${process.env.NEXT_PUBLIC_ENDPOINT}/webhooks/assembly?id=${transcriptionId}`;
     const authorization = process.env.ASSEMBLY_AI_AUTH;
 
-    console.log("webhook_url", webhook_url);
-
     const { data: transcription }: { data: AssemblyTranscibeResponse } =
       await axios({
         url,
@@ -51,8 +49,6 @@ const transcribe = async (req: NextApiRequest, res: NextApiResponse) => {
         .match({ id: editId });
       console.log("edit update: data", data, "error", error);
     }
-
-    console.log("insert Transcription", data, error);
 
     res.send({ data: { data, transcription }, error });
   } catch (error) {

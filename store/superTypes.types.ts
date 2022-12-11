@@ -9,6 +9,8 @@ export type EditProps = {
   assemblyId: string | null;
   parentId?: string | null;
   start?: null | number;
+  title?: string | null;
+  tweet?: string | null;
   end?: null | number;
   headline?: null | string;
   summary?: null | string;

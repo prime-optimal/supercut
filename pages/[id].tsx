@@ -1,23 +1,14 @@
-import MuxPlayer from "@mux/mux-player-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Page } from "../components/Page";
 import { useLiveEdit } from "../hooks/useLiveEdit";
-import {
-  AssemblyChapterProps,
-  EditProps,
-  TranscriptionProps,
-} from "../store/superTypes.types";
+import { EditProps, TranscriptionProps } from "../store/superTypes.types";
 import { useSuperStore } from "../store/useSuperStore";
 import { client } from "../supabase";
 import MuxVideo from "@mux/mux-video-react";
-import axios from "axios";
-import { v4 as uuid } from "uuid";
 
 const useEdit = (id: string) => {
   const [error, setError] = useState<null | string>(null);
-
   const [subEdits, setSubEdits] = useState<null | EditProps[]>(null);
-
   const setEdit = useSuperStore((state) => state.setEdit);
   const getEdit = async (id: string) => {
     const { data, error } = await client
@@ -129,44 +120,6 @@ const Playback: React.FC<{ id: string }> = ({ id }) => {
 
   const progress = useSuperStore((state) => state[`Progress:${id}`]);
 
-  const createClip = async () => {
-    const start = 5;
-    const end = 10;
-
-    const parentId = edit?.id;
-
-    console.log("parentId", parentId);
-
-    const newEdit: EditProps = {
-      id: uuid(),
-      parentId: parentId,
-      start: start,
-      end: end,
-      uploadId: null,
-      playbackId: null,
-      assetId: null,
-      status: null,
-      staticStatus: null,
-      summaryStatus: null,
-      assemblyId: null,
-      headline: null,
-      summary: null,
-      gist: null,
-    };
-
-    const { data, error } = await client.from("Edit").insert({ ...newEdit });
-
-    console.log("data", data, error);
-
-    const response = await axios({
-      method: "post",
-      url: "/api/clip",
-      data: { editId: newEdit?.id, parentId: parentId, start, end },
-    });
-
-    console.log("response", response);
-  };
-
   return (
     <Page>
       <div className="flex h-screen max-h-screen w-screen flex-col">
@@ -187,18 +140,6 @@ const Playback: React.FC<{ id: string }> = ({ id }) => {
             subEdits.map((edit, index) => {
               return <TwitterCard key={index} edit={edit} id={edit?.id} />;
             })}
-          {/* {transcription?.chapters &&
-            transcription?.chapters.map(
-              (chapter: AssemblyChapterProps, index: number) => {
-                return (
-                  <TwitterCard
-                    key={index}
-                    chapter={chapter}
-                    playbackId={playbackId}
-                  />
-                );
-              }
-            )} */}
         </div>
       </div>
     </Page>
@@ -248,7 +189,7 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
 
   return (
     <div className="flex flex-col overflow-hidden rounded-md border border-solid border-gray-200">
-      <div className="flex h-48 flex-col items-center overflow-hidden bg-black">
+      <div className="relative flex h-48 flex-col items-center overflow-hidden bg-black">
         {edit?.playbackId && (
           <MuxVideo
             ref={ref}
@@ -261,16 +202,16 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
             muted={false}
           />
         )}
+        <div
+          className="absolute top-0 left-0 flex h-full w-full items-center justify-center"
+          onClick={() => togglePlayPause({ isPlaying })}
+        >
+          <span className="text-white">{isPlaying ? "Pause" : "Play"}</span>
+        </div>
       </div>
-      <button
-        className="btn-secondary"
-        onClick={() => togglePlayPause({ isPlaying })}
-      >
-        {isPlaying ? "Pause" : "Play"}
-      </button>
       <div className="flex flex-col p-3">
-        <span className="text-md">{edit?.gist}</span>
-        <span className="text-base text-gray-700">{edit?.summary}</span>
+        <span className="mb-2 text-base">{edit?.title}</span>
+        <span className="text-sm">{edit?.tweet}</span>
       </div>
     </div>
   );
