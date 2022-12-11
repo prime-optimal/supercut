@@ -15,7 +15,7 @@ function Home() {
   const onSelect = useCallback(
     (acceptedFiles: File[]) => {
       handleUpload(acceptedFiles);
-      router.push(`/${id}?password=superpass`);
+      router.push(`/${id}`);
     },
     [id, handleUpload, router]
   );

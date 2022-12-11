@@ -9,8 +9,6 @@ const setTranscription = ({
   set: any;
   transcription: TranscriptionProps | null;
 }) => {
-  console.log("transcription?.editId", transcription?.editId);
-
   set((state: SuperStoreProps) => {
     return {
       ...state,

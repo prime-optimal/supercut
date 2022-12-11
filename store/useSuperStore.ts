@@ -1,6 +1,7 @@
 import create from "zustand";
 import { handleEditUpdate } from "./functions/handleEditUpdate";
 import { setEdit } from "./functions/setEdit";
+import { setSubEdits } from "./functions/setSubEdits";
 import { setTranscription } from "./functions/setTranscription";
 import { uploadMux } from "./functions/uploadMux";
 import { EditProps, TranscriptionProps } from "./superTypes.types";
@@ -32,6 +33,13 @@ export type SuperStoreProps = {
   }: {
     transcription: TranscriptionProps;
   }) => void;
+  setSubEdits: ({
+    edits,
+    editId,
+  }: {
+    edits: EditProps[] | null;
+    editId: string;
+  }) => void;
 };
 
 const initState = {
@@ -60,6 +68,13 @@ const useSuperStore = create<SuperStoreProps>((set, get) => ({
     oldValue: EditProps | null;
     eventType: "INSERT" | "UPDATE";
   }) => handleEditUpdate({ newValue, oldValue, eventType, set }),
+  setSubEdits: ({
+    edits,
+    editId,
+  }: {
+    edits: EditProps[] | null;
+    editId: string;
+  }) => setSubEdits({ edits, editId, set }),
 }));
 
 export { useSuperStore };

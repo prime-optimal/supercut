@@ -54,18 +54,26 @@ export const clipVideo = async ({
     mp4_support: "standard",
   });
 
-  const title = await createTitle({ text: summary });
-  const tweet = await createTweet({ text: summary });
-
   if (newAsset?.id) {
     // update Edit
     const { data, error } = await client
       .from("Edit")
-      .update({ assetId: newAsset?.id, parentId: parentId, title, tweet })
+      .update({ assetId: newAsset?.id, parentId: parentId })
       .eq("id", editId)
       .single();
-
     console.log("edit updated", data, error);
+  }
+
+  const title = await createTitle({ text: summary });
+  const tweet = await createTweet({ text: summary });
+
+  if (title || tweet) {
+    const { data, error } = await client
+      .from("Edit")
+      .update({ title, tweet })
+      .eq("id", editId)
+      .single();
+    console.log("add tweet and title", data, error);
   }
 
   console.log("newAsset", newAsset);
