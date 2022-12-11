@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import Mux from '@mux/mux-node';
-import { EditProps } from '../../../store/superTypes.types';
-import { PostgrestResponse } from '@supabase/supabase-js';
-import { client } from '../../../supabase';
+import { NextApiRequest, NextApiResponse } from "next";
+import Mux from "@mux/mux-node";
+import { EditProps } from "../../../store/superTypes.types";
+import { PostgrestResponse } from "@supabase/supabase-js";
+import { client } from "../../../supabase";
 
 const { Video } = new Mux();
 
@@ -21,31 +21,31 @@ const insertEdit = async ({
     status: null,
     staticStatus: null,
     assemblyId: null,
-    summaryStatus: null
+    summaryStatus: null,
   };
 
   const { data, error }: PostgrestResponse<undefined> = await client
-    .from('Edit')
+    .from("Edit")
     .insert({ ...edit });
 
   return { data, error };
 };
 
-export default async (
+const upload = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
   const { method } = req;
 
   switch (method) {
-    case 'POST':
+    case "POST":
       try {
         const upload = await Video.Uploads.create({
           new_asset_settings: {
-            playback_policy: 'public',
-            mp4_support: 'standard',
+            playback_policy: "public",
+            mp4_support: "standard",
           },
-          cors_origin: '*',
+          cors_origin: "*",
         });
 
         const body = JSON.parse(req?.body);
@@ -60,12 +60,14 @@ export default async (
         });
       } catch (e) {
         res.statusCode = 500;
-        console.error('Request error', e); // eslint-disable-line no-console
-        res.json({ error: 'Error creating upload' });
+        console.error("Request error", e); // eslint-disable-line no-console
+        res.json({ error: "Error creating upload" });
       }
       break;
     default:
-      res.setHeader('Allow', ['POST']);
+      res.setHeader("Allow", ["POST"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 };
+
+export default upload;

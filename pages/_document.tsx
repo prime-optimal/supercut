@@ -1,17 +1,16 @@
-import React from 'react';
-import Document, { Head, Main, NextScript, Html } from 'next/document';
+import Document, { Html, Head, Main, NextScript } from "next/document";
 
 class MyDocument extends Document {
   render() {
     return (
-      <Html lang="en" style={{ background: '#fff' }}>
+      <Html>
         <Head>
           <link
-            href="https://fonts.googleapis.com/css2?family=Inter&display=optional"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap"
             rel="stylesheet"
           />
         </Head>
-        <body style={{ background: '#fff' }}>
+        <body>
           <Main />
           <NextScript />
         </body>

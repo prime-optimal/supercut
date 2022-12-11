@@ -11,32 +11,6 @@ const useEdit = (id: string) => {
   const [error, setError] = useState<null | string>(null);
   const [subEdits, setSubEdits] = useState<null | EditProps[]>(null);
   const setEdit = useSuperStore((state) => state.setEdit);
-  const getEdit = async (id: string) => {
-    const { data, error } = await client
-      .from("Edit")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (data) {
-      setEdit({ edit: data });
-    } else {
-      setError("error");
-    }
-  };
-
-  const getSubEdits = async (id: string) => {
-    const { data, error } = await client
-      .from("Edit")
-      .select("*")
-      .eq("parentId", id);
-
-    if (data) {
-      setSubEdits(data);
-    } else {
-      setError("error");
-    }
-  };
 
   const edit: EditProps = useSuperStore((state) => state[`Edit:${id}`] ?? null);
   const playbackId = useMemo(() => {
@@ -44,16 +18,41 @@ const useEdit = (id: string) => {
   }, [edit]);
 
   useEffect(() => {
+    const getSubEdits = async (id: string) => {
+      const { data, error } = await client
+        .from("Edit")
+        .select("*")
+        .eq("parentId", id);
+
+      if (data) {
+        setSubEdits(data);
+      } else {
+        setError("error");
+      }
+    };
     if (id) {
       getSubEdits(id);
     }
   }, [id]);
 
   useEffect(() => {
+    const getEdit = async (id: string) => {
+      const { data, error } = await client
+        .from("Edit")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (data) {
+        setEdit({ edit: data });
+      } else {
+        setError("error");
+      }
+    };
     if (edit === null && id) {
       getEdit(id);
     }
-  }, [id, edit]);
+  }, [id, edit, setEdit]);
 
   return { edit, playbackId, error, subEdits };
 };
@@ -61,28 +60,24 @@ const useEdit = (id: string) => {
 const useLiveTranscription = ({ editId }: { editId: string }) => {
   const setTranscription = useSuperStore((state) => state.setTranscription);
 
-  const getTranscription = async ({ editId }) => {
-    const { data, error } = await client
-      .from("Transcription")
-      .select("*")
-      .eq("editId", editId)
-      .single();
-
-    console.log("getTranscription data", data);
-
-    if (data) {
-      setTranscription({ transcription: data });
-      // setEdit({ edit: data });
-    } else {
-      console.log("error");
-    }
-  };
-
   useEffect(() => {
+    const getTranscription = async ({ editId }) => {
+      const { data, error } = await client
+        .from("Transcription")
+        .select("*")
+        .eq("editId", editId)
+        .single();
+
+      if (data) {
+        setTranscription({ transcription: data });
+      } else {
+        console.log("error");
+      }
+    };
     if (editId) {
       getTranscription({ editId });
     }
-  }, [editId]);
+  }, [editId, setTranscription]);
 
   useEffect(() => {
     const channel = client
@@ -91,9 +86,6 @@ const useLiveTranscription = ({ editId }: { editId: string }) => {
         "postgres_changes",
         { event: "*", schema: "public", table: "Transcription" },
         (payload: any) => {
-          console.log("payload", payload);
-          console.log("payload?.eventType", payload?.eventType);
-
           if (payload?.eventType === "UPDATE") {
             setTranscription({ transcription: payload?.new });
           } else if (payload?.eventType === "INSERT") {
@@ -102,13 +94,13 @@ const useLiveTranscription = ({ editId }: { editId: string }) => {
         }
       )
       .subscribe();
-  }, []);
+  }, [setTranscription]);
 
   return {};
 };
 
 const Playback: React.FC<{ id: string }> = ({ id }) => {
-  const { edit, playbackId, subEdits } = useEdit(id);
+  const { edit, subEdits } = useEdit(id);
 
   useLiveTranscription({ editId: id });
   useLiveEdit();
@@ -265,28 +257,6 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
     }
   };
 
-  const setTranscription = useSuperStore((state) => state.setTranscription);
-
-  const getTranscription = async (id: string) => {
-    const { data, error } = await client
-      .from("Transcription")
-      .select("*")
-      .eq("editId", id)
-      .single();
-
-    if (data) {
-      setTranscription({ transcription: data });
-    } else {
-      console.log("error");
-    }
-  };
-
-  useEffect(() => {
-    if (id) {
-      getTranscription(id);
-    }
-  }, [id]);
-
   const [isOpen, setIsOpen] = useState(false);
 
   const isGenerating = useMemo(() => {
@@ -298,7 +268,6 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
   }, [edit]);
 
   const videoReady = useMemo(() => {
-    // return false;
     if (edit?.status === "ready") {
       return true;
     } else {
@@ -378,20 +347,10 @@ const TwitterCard = ({ edit, id }: { edit: EditProps; id: string }) => {
 
 export async function getServerSideProps(ctx) {
   const { id } = ctx.query;
-  // const password = ctx.query?.password;
 
-  // if (password === "superpass") {
   return {
     props: { id },
   };
-  // } else {
-  //   return {
-  //     redirect: {
-  //       destination: "/password",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
 }
 
 export default Playback;

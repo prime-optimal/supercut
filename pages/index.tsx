@@ -1,29 +1,27 @@
-import Head from "next/head";
 import { useCallback, useState } from "react";
 import { useMux } from "../hooks/useMux";
 import { v4 as uuid } from "uuid";
 import { useFileSelect } from "../hooks/useSelectFile";
 import { useLiveEdit } from "../hooks/useLiveEdit";
-import { useSuperStore } from "../store/useSuperStore";
-import { EditProps } from "../store/superTypes.types";
 import { useRouter } from "next/router";
 import { Page } from "../components/Page";
-import { ArrowRight, Cloud, Upload, UploadCloud } from "react-feather";
+import { ArrowRight, UploadCloud } from "react-feather";
 
 function Home() {
   const [id, setId] = useState(uuid());
-  const { handleUpload, progressPercent } = useMux({ id: id });
+  const { handleUpload } = useMux({ id: id });
   const router = useRouter();
 
-  const onSelect = useCallback((acceptedFiles: File[]) => {
-    handleUpload(acceptedFiles);
-    router.push(`/${id}?password=superpass`);
-  }, []);
+  const onSelect = useCallback(
+    (acceptedFiles: File[]) => {
+      handleUpload(acceptedFiles);
+      router.push(`/${id}?password=superpass`);
+    },
+    [id, handleUpload, router]
+  );
 
   const { selectFile } = useFileSelect({ onSelect: onSelect });
-
   useLiveEdit();
-  // const edit: EditProps = useSuperStore((state) => state[`Edit:${id}`]);
 
   return (
     <Page seo={{ title: "Supercut" }}>
@@ -58,7 +56,9 @@ function Home() {
               </div>
             </div>
             <span className="flex flex-row items-center text-base">
-              <span className="text-gray-500">Don't have a recording?</span>{" "}
+              <span className="text-gray-500">
+                Don&apos;t have a recording?{" "}
+              </span>
               <div
                 onClick={() =>
                   router.push("/a1d0f68c-6ecd-45bd-9e98-d00efe03a978")
@@ -78,6 +78,7 @@ function Home() {
                   className="text-gray-900 hover:underline"
                   href="https://twitter.com/XavierEnglish8"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Xavier
                 </a>{" "}
@@ -86,6 +87,7 @@ function Home() {
                   className="text-gray-900 hover:underline"
                   href="https://twitter.com/zacgoods"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Zac
                 </a>{" "}
@@ -94,6 +96,7 @@ function Home() {
                   className="text-base text-gray-900 hover:underline"
                   href="https://hackathon.assemblyai.com/"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   Dec 2022 AssemblyAI Hackathon
                 </a>{" "}
@@ -101,6 +104,7 @@ function Home() {
                 <a
                   href="https://github.com/something-app/supercut"
                   target="_blank"
+                  rel="noreferrer"
                   className="text-base text-gray-900 hover:underline"
                 >
                   Github
